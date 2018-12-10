@@ -59,7 +59,7 @@ int start()
 //|the code to close all position at the end of the day at 12 midnight 
 // and this code request the sub function named (close_all_trades());                                          |
 //+------------------------------------------------------------------+ 
- 
+ //if ( (Minute()==15 ||Minute()==30 ||Minute()==45 || Minute()==00 ) && Seconds () == 0) PlaySound("ok.wav");;
  if (Hour()==0&& Minute()==0 && Seconds () <= 5)close_all_trades();
  /* to call the sub funcation to close all orders at a certain time for examle at 12 PM
  Note:I put also a condition for minute (Minute()<=1) because the EA will continue to close
@@ -67,10 +67,11 @@ int start()
  so the minute contion make the EA only close postion in the frist 2 minutes of the hour ZERO */
  
  
- if ( (OrdersTotal () <= 2) )// to determine the total number of opened orders not more than 3 orders 
-    
+ // if ( (OrdersTotal () <= 2) )// to determine the total number of opened orders not more than 3 orders 
+     
+
   { 
-  
+    
 //+------------------------------------------------------------------+
 //| Variables   MAIN and SIGNAL lines in stochastic for all time frams                                           |
 //+------------------------------------------------------------------+
@@ -123,13 +124,40 @@ double diff_1m_up , diff_5m_up , diff_15m_up , diff_30m_up , diff_1h_up , diff_4
   diff_day_up = main_day-signal_day ;
   diff_week_up = main_week-signal_week ;
   diff_month_up = main_month-signal_month ;
+
+   
+//A1 for sell ( month,week,hour,30m,15m )signal stoc red < 20 + (4h diff down >10) + day down
+//A1 for buy ( month,week,hour,30m,15m )signal stoc red > 80 + (4h diff up >10) + day up
+   if ( signal_month < 20 && signal_week < 20 && signal_1h < 20 && signal_30m < 20 && signal_15m < 20 && 
+         main_day < signal_day && diff_4h_down >= 10) 
+   {
+   PlaySound("alert2.wav");
+   Alert ("A1 for sell"); // ,Day
+   Alert ("Sell ",Symbol(), " (Signal month = ", NormalizeDouble(signal_month,1 ) ,") (week  = ", NormalizeDouble(signal_week ,1) ,
+        ") (1h = ", NormalizeDouble(signal_1h,1 ) ,") (30m = ", NormalizeDouble(signal_30m,1) ,
+        ")(4h diff down= ", NormalizeDouble(diff_4h_down,1) );
+   Comment(" A1 for Sell ( month,week,hour,30m,15m )signal stoc red < 20 + (4h diff down >10) + day down ",Symbol()  ); 
+    }
+
+
+   if ( signal_month >80 && signal_week >80 && signal_1h >80 && signal_30m >80 && signal_15m >80 && 
+         main_day > signal_day && diff_4h_up >= 10) 
+   {
+   PlaySound("alert2.wav");
+   Alert ("A1 for buy "); // ,Day
+   Alert ("Buy ",Symbol(), " (Signal month = ", NormalizeDouble(signal_month,1 ) ,") (week  = ", NormalizeDouble(signal_week ,1) ,
+        ") (1h = ", NormalizeDouble(signal_1h,1 ) ,") (30m = ", NormalizeDouble(signal_30m,1) ,
+        ")(4h diff up= ", NormalizeDouble(diff_4h_up,1) );
+   
+   Comment("A1 for buy ( month,week,hour,30m,15m )signal stoc red > 80 + (4h diff up >10) + day up " , Symbol() ); 
+   }
   
-  
-  
-//short alerts    
+ /* 
+//short alerts  1m,5m,15m,30m   
    if (diff_1m_down >= 10 && diff_5m_down >= 10 && diff_15m_down >= 10  && diff_30m_down >= 10  )
    {
    PlaySound("alert2.wav");
+   Alert ("alerts  1m,5m,15m,30m");
    Alert ("Sell ",Symbol(), " diff_1m =", NormalizeDouble(diff_1m_down,2 ) ," /diff_5m =", NormalizeDouble(diff_5m_down,2) ,
         " /diff_15m =", NormalizeDouble(diff_15m_down,2 ) ," /diff_30m =", NormalizeDouble(diff_30m_down,2)  );
    Comment("Sell ",Symbol(), " diff_1m =", NormalizeDouble(diff_1m_down,2 ) ," /diff_5m =", NormalizeDouble(diff_5m_down,2),
@@ -140,17 +168,19 @@ double diff_1m_up , diff_5m_up , diff_15m_up , diff_30m_up , diff_1h_up , diff_4
    if ((diff_1m_up ) >= 10  && diff_5m_up >=10 && diff_15m_up >=10 && diff_30m_up >=10)
    {
    PlaySound("alert2.wav");
+   Alert ("alerts  1m,5m,15m,30m");
    Alert ("Buy " , Symbol(), " diff_1m =", NormalizeDouble(diff_1m_up ,2) ," /diff_5m =",NormalizeDouble(diff_5m_up,2),
    " /diff_15m =", NormalizeDouble(diff_15m_up ,2) ," /diff_30m =",NormalizeDouble(diff_30m_up,2));
    
    Comment("Buy " , Symbol(), " diff_1m =", NormalizeDouble(diff_1m_up ,2) ," /diff_5m =",NormalizeDouble(diff_5m_up,2),
    " /diff_15m =", NormalizeDouble(diff_15m_up ,2) ," /diff_30m =",NormalizeDouble(diff_30m_up,2) ); 
    }
-    
+
 //1h and 4h  alerts    
    if (diff_1h_down >= 10 && diff_4h_down >= 10 )
    {
    PlaySound("alert2.wav");
+   Alert ("alerts  1h and 4h");
    Alert ("Sell ",Symbol(), " diff_1h_down =", NormalizeDouble(diff_1h_down,2 ) ," /diff_4h_down =", NormalizeDouble(diff_4h_down,2) );
    Comment("Sell ",Symbol(), " diff_1h_down =", NormalizeDouble(diff_1h_down,2 ) ," /diff_4h_down =", NormalizeDouble(diff_4h_down,2) );
     }
@@ -158,11 +188,43 @@ double diff_1m_up , diff_5m_up , diff_15m_up , diff_30m_up , diff_1h_up , diff_4
    if (diff_1h_up >= 10  && diff_4h_up >=10  )
    {
    PlaySound("alert2.wav");
+   Alert ("alerts  1h and 4h");
    Alert ("Buy " , Symbol(), " diff_1h_up =", NormalizeDouble(diff_1h_up ,2) ," /diff_4h_up =",NormalizeDouble(diff_4h_up,2) );
    
    Comment("Buy " , Symbol(), " diff_1h_up =", NormalizeDouble(diff_1h_up ,2) ," /diff_4h_up =",NormalizeDouble(diff_4h_up,2) );
    }    
-    
+  
+   
+//all alerts  1m,5m,15m,30m,1h,4h 
+   if (diff_1m_down >= 10 && diff_5m_down >= 10 && diff_15m_down >= 10  && diff_30m_down >= 10 
+   && diff_1h_down >= 10 && diff_4h_down >= 10) //&& diff_day_down >=10 
+   {
+   PlaySound("alert2.wav");
+   Alert ("all alerts  1m,5m,15m,30m,1h,4h"); // ,Day
+   Alert ("Sell ",Symbol(), " (1m =", NormalizeDouble(diff_1m_down,2 ) ,") (5m =", NormalizeDouble(diff_5m_down,2) ,
+        ") (15m =", NormalizeDouble(diff_15m_down,2 ) ,") (30m =", NormalizeDouble(diff_30m_down,2) ,") 1h =", NormalizeDouble(diff_1h_down,2) ,
+        ")(4h =", NormalizeDouble(diff_4h_down,2)  ,") (Day =", NormalizeDouble(diff_day_down,2),")" );
+   Comment("Sell ",Symbol(), " diff_1m =", NormalizeDouble(diff_1m_down,2 ) ," /diff_5m =", NormalizeDouble(diff_5m_down,2),
+    " /diff_15m =", NormalizeDouble(diff_15m_down,2 ) ," /diff_30m =", NormalizeDouble(diff_30m_down,2)  ); 
+    }
+
+
+   if ( diff_1m_up >= 10  && diff_5m_up >=10 && diff_15m_up >=10 && diff_30m_up >=10
+    && diff_1h_up >= 10  && diff_4h_up >= 10 ) // && diff_day_up >= 10
+   {
+   PlaySound("alert2.wav");
+   Alert ("all alerts  1m,5m,15m,30m,1h,4h"); // ,Day
+   Alert ("Buy " , Symbol(), " (1m =", NormalizeDouble(diff_1m_up ,2) ,") (5m =",NormalizeDouble(diff_5m_up,2),
+   ") (15m =", NormalizeDouble(diff_15m_up ,2) ,") (30m =",NormalizeDouble(diff_30m_up,2),
+   ") (1h =",NormalizeDouble(diff_1h_up,2),") (4h=",NormalizeDouble(diff_4h_up,2),") (Day=",NormalizeDouble(diff_day_up,2), " )");
+   
+   Comment("Buy " , Symbol(), " diff_1m =", NormalizeDouble(diff_1m_up ,2) ," /diff_5m =",NormalizeDouble(diff_5m_up,2),
+   " /diff_15m =", NormalizeDouble(diff_15m_up ,2) ," /diff_30m =",NormalizeDouble(diff_30m_up,2) ); 
+   }
+ 
+*/    
+
+
  /*
   // short sell conditions
 bool short1 = (( diff_15m_down > 10 ) && ( main_15m >= 50 ) && ( main_1m == 50 ));

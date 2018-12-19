@@ -1,0 +1,488 @@
+//+------------------------------------------------------------------+
+//|                                                     1m alert.mq4 |
+//|                      Copyright © 2009, MetaQuotes Software Corp. |
+//|                                        http://www.metaquotes.net |
+//+------------------------------------------------------------------+
+#property copyright "akram"
+#property link      "http://www.metaquotes.net"
+
+//+------------------------------------------------------------------+
+//| Input Parameters   مدخلات الاكسبيرت                                 |
+//+------------------------------------------------------------------+
+extern double  Lots         = 0.1;
+extern int     StopLoss     = 500 ;
+extern int     TakeProfit   = 20 ;
+                                          
+int Slippage=5;
+int i;
+
+
+//+------------------------------------------------------------------+
+//| Static Parameters   متغيرات عامة                                  |
+//+------------------------------------------------------------------+
+int            Magic        = 10;
+
+
+//+------------------------------------------------------------------+
+//| expert initialization function                                   |
+//+------------------------------------------------------------------+
+int init()
+  {
+//----
+   
+//----
+   return(0);
+  }
+//+------------------------------------------------------------------+
+//| expert deinitialization function                                 |
+//+------------------------------------------------------------------+
+int deinit()
+  {
+//----
+   
+//----
+   return(0);
+  }
+//+------------------------------------------------------------------+
+//| expert start function                                            |
+//+------------------------------------------------------------------+
+int start()
+ { 
+ 
+
+  /*if ( AccountNumber()!=534256)
+  Comment( " this is not the account test ( 534256) but this is number is = ", AccountNumber());//return (0) ;     
+  if ( AccountNumber()==534256)
+   Comment ( "    ooo ok kkk          correct account number is   =  ", AccountNumber());
+   */
+
+//+------------------------------------------------------------------+
+//|the code to close all position at the end of the day at 12 midnight 
+// and this code request the sub function named (close_all_trades());                                          |
+//+------------------------------------------------------------------+ 
+ //if ( (Minute()==15 ||Minute()==30 ||Minute()==45 || Minute()==00 ) && Seconds () == 0) PlaySound("ok.wav");;
+ if (Hour()==0&& Minute()==0 && Seconds () <= 5)close_all_trades();
+ /* to call the sub funcation to close all orders at a certain time for examle at 12 PM
+ Note:I put also a condition for minute (Minute()<=1) because the EA will continue to close
+ any position will opened untill the Hour changed more than ZERO (12 AM ),
+ so the minute contion make the EA only close postion in the frist 2 minutes of the hour ZERO */
+
+ // if ( (OrdersTotal () <= 2) )// to determine the total number of opened orders not more than 3 orders 
+    if (Seconds () <= 5 || Seconds () == 35 ) 
+
+  { 
+    
+//+------------------------------------------------------------------+
+//| Variables   MAIN and SIGNAL lines in stochastic for all time frams                                           |
+//+------------------------------------------------------------------+
+  
+  double main_1m  , main_5m , main_15m , main_30m , main_1h , main_4h , main_day , main_week , main_month ;
+  main_1m = iStochastic(NULL,1,5,3,3,MODE_SMA,0,MODE_MAIN,0);
+  main_5m = iStochastic(NULL,5,5,3,3,MODE_SMA,0,MODE_MAIN,0) ;
+  main_15m = iStochastic(NULL,15,5,3,3,MODE_SMA,0,MODE_MAIN,0) ;
+  main_30m = iStochastic(NULL,30,5,3,3,MODE_SMA,0,MODE_MAIN,0) ;
+  main_1h = iStochastic(NULL,60,5,3,3,MODE_SMA,0,MODE_MAIN,0) ;
+  main_4h = iStochastic(NULL,240,5,3,3,MODE_SMA,0,MODE_MAIN,0) ;
+  main_day = iStochastic(NULL,1440,5,3,3,MODE_SMA,0,MODE_MAIN,0) ;
+  main_week = iStochastic(NULL,10080,5,3,3,MODE_SMA,0,MODE_MAIN,0) ;
+  main_month = iStochastic(NULL,43200,5,3,3,MODE_SMA,0,MODE_MAIN,0) ;
+  
+  double signal_1m , signal_5m , signal_15m , signal_30m , signal_1h , signal_4h , signal_day , signal_week , signal_month  ;
+  signal_1m = iStochastic(NULL,1,5,3,3,MODE_SMA,0,MODE_SIGNAL,0) ;
+  signal_5m = iStochastic(NULL,5,5,3,3,MODE_SMA,0,MODE_SIGNAL,0) ;
+  signal_15m = iStochastic(NULL,15,5,3,3,MODE_SMA,0,MODE_SIGNAL,0) ;
+  signal_30m = iStochastic(NULL,30,5,3,3,MODE_SMA,0,MODE_SIGNAL,0) ;
+  signal_1h = iStochastic(NULL,60,5,3,3,MODE_SMA,0,MODE_SIGNAL,0) ;
+  signal_4h = iStochastic(NULL,240,5,3,3,MODE_SMA,0,MODE_SIGNAL,0) ;
+  signal_day = iStochastic(NULL,1440,5,3,3,MODE_SMA,0,MODE_SIGNAL,0) ;
+  signal_week = iStochastic(NULL,10080,5,3,3,MODE_SMA,0,MODE_SIGNAL,0) ;
+  signal_month = iStochastic(NULL,43200,5,3,3,MODE_SMA,0,MODE_SIGNAL,0) ;
+  
+//+------------------------------------------------------------------+  
+// Differance  conditions  
+//+------------------------------------------------------------------+
+double diff_1m_down , diff_5m_down , diff_15m_down , diff_30m_down , diff_1h_down , diff_4h_down , diff_day_down , diff_week_down , diff_month_down ;   
+  diff_1m_down = signal_1m-main_1m ;
+  diff_5m_down = signal_5m-main_5m ;
+  diff_15m_down = signal_15m-main_15m ;
+  diff_30m_down = signal_30m-main_30m ;
+  diff_1h_down = signal_1h-main_1h ;
+  diff_4h_down = signal_4h-main_4h ;
+  diff_day_down = signal_day-main_day ;
+  diff_week_down = signal_week-main_week ;
+  diff_month_down = signal_month-main_month ;
+  
+double diff_1m_up , diff_5m_up , diff_15m_up , diff_30m_up , diff_1h_up , diff_4h_up , diff_day_up , diff_week_up , diff_month_up ;  
+  diff_1m_up = main_1m-signal_1m ;
+  diff_5m_up = main_5m-signal_5m ;
+  diff_15m_up = main_15m-signal_15m ;
+  diff_30m_up = main_30m-signal_30m ;
+  diff_1h_up = main_1h-signal_1h ;
+  diff_4h_up = main_4h-signal_4h ;
+  diff_day_up = main_day-signal_day ;
+  diff_week_up = main_week-signal_week ;
+  diff_month_up = main_month-signal_month ;
+  
+//open and close price for current candle in the month,week,and day frames
+double openMonthPrice = iOpen(Symbol(),PERIOD_MN1 ,0) ;// the open price of the candle 0 (the current candle)on the month frame
+double openWeekPrice = iOpen(Symbol(),PERIOD_W1 ,0) ;// the open price of the candle 0 (the current candle)on the week frame
+double openDayPrice = iOpen(Symbol(),PERIOD_D1 ,0) ;// the open price of the candle 0 (the current candle)on the day frame
+double closeMonthPrice = iClose(Symbol(),PERIOD_MN1 ,0);// the close price of the candle 0 (the current candle)on the month frame
+double closeWeekPrice = iClose(Symbol(),PERIOD_W1 ,0);// the close price of the candle 0 (the current candle)on the week frame
+double closeDayPrice = iClose(Symbol(),PERIOD_D1 ,0);// the close price of the candle 0 (the current candle)on the day frame
+
+// calculate the avarage  body of  the candle in month frame
+double body0Month = MathAbs(iOpen(Symbol(),PERIOD_MN1 ,0) - iClose(Symbol(),PERIOD_MN1 ,0));
+double body1Month = MathAbs(iOpen(Symbol(),PERIOD_MN1 ,1) - iClose(Symbol(),PERIOD_MN1 ,1));
+double body2Month = MathAbs(iOpen(Symbol(),PERIOD_MN1 ,2) - iClose(Symbol(),PERIOD_MN1 ,2));
+double body3Month = MathAbs(iOpen(Symbol(),PERIOD_MN1 ,3) - iClose(Symbol(),PERIOD_MN1 ,3));
+double body4Month = MathAbs(iOpen(Symbol(),PERIOD_MN1 ,4) - iClose(Symbol(),PERIOD_MN1 ,4));
+double body5Month = MathAbs(iOpen(Symbol(),PERIOD_MN1 ,5) - iClose(Symbol(),PERIOD_MN1 ,5));
+double avarageBodyMonth= ( (body0Month+body1Month+body2Month+body3Month+body4Month+body5Month)/6);
+Alert ( openMonthPrice ,"  and close price is  " ,closeMonthPrice ,"   body0Month is  " , body0Month , "  avrage is  ", avarageBodyMonth);
+
+// calculate the avarage  body of  the candle in week frame
+double body0Week = MathAbs(iOpen(Symbol(),PERIOD_W1 ,0) - iClose(Symbol(),PERIOD_W1 ,0));
+double body1Week = MathAbs(iOpen(Symbol(),PERIOD_W1 ,1) - iClose(Symbol(),PERIOD_W1 ,1));
+double body2Week = MathAbs(iOpen(Symbol(),PERIOD_W1 ,2) - iClose(Symbol(),PERIOD_W1 ,2));
+double body3Week = MathAbs(iOpen(Symbol(),PERIOD_W1 ,3) - iClose(Symbol(),PERIOD_W1 ,3));
+double body4Week = MathAbs(iOpen(Symbol(),PERIOD_W1 ,4) - iClose(Symbol(),PERIOD_W1 ,4));
+double body5Week = MathAbs(iOpen(Symbol(),PERIOD_W1 ,5) - iClose(Symbol(),PERIOD_W1 ,5));
+double avarageBodyWeek= ( (body0Week+body1Week+body2Week+body3Week+body4Week+body5Week)/6);
+
+// calculate the avarage  body of  the candle in Day frame
+double body0Day = MathAbs(iOpen(Symbol(),PERIOD_D1,0) - iClose(Symbol(),PERIOD_D1,0));
+double body1Day = MathAbs(iOpen(Symbol(),PERIOD_D1,1) - iClose(Symbol(),PERIOD_D1,1));
+double body2Day = MathAbs(iOpen(Symbol(),PERIOD_D1,2) - iClose(Symbol(),PERIOD_D1,2));
+double body3Day = MathAbs(iOpen(Symbol(),PERIOD_D1,3) - iClose(Symbol(),PERIOD_D1,3));
+double body4Day = MathAbs(iOpen(Symbol(),PERIOD_D1,4) - iClose(Symbol(),PERIOD_D1,4));
+double body5Day = MathAbs(iOpen(Symbol(),PERIOD_D1,5) - iClose(Symbol(),PERIOD_D1,5));
+double avarageBodyDay= ( (body0Day+body1Day+body2Day+body3Day+body4Day+body5Day)/6);
+
+
+if ( 
+
+ ) 
+   {
+   PlaySound("alert2.wav");
+   Alert ("A1 for sell"); // ,Day
+   Comment(" A1 for Sell ( month,week,hour,30m,15m )signal stoc red < 20 + (4h diff down >10) + day down ",Symbol()  ); 
+    }
+
+
+/* 
+//A1 for sell ( month,week,hour,30m,15m )signal stoc red < 20 + (4h diff down >10) + day down
+//A1 for buy ( month,week,hour,30m,15m )signal stoc red > 80 + (4h diff up >10) + day up
+if ( diff_1h_down>= 10 && diff_4h_down >= 10 && main_1m < signal_1m && main_5m < signal_5m && main_15m < signal_15m && main_30m < signal_30m ) 
+   {
+   PlaySound("alert2.wav");
+   Alert ("A1 for sell"); // ,Day
+   Alert ("Sell ",Symbol(), " (Signal month = ", NormalizeDouble(signal_month,1 ) ,") (week  = ", NormalizeDouble(signal_week ,1) ,
+        ") (1h = ", NormalizeDouble(signal_1h,1 ) ,") (30m = ", NormalizeDouble(signal_30m,1) ,
+        ")(4h diff down= ", NormalizeDouble(diff_4h_down,1) );
+   Comment(" A1 for Sell ( month,week,hour,30m,15m )signal stoc red < 20 + (4h diff down >10) + day down ",Symbol()  ); 
+    }
+
+
+   if ( diff_1h_up >=10 && diff_4h_up >= 10&& main_1m > signal_1m && main_5m > signal_5m && main_15m > signal_15m && main_30m > signal_30m) 
+   {
+   PlaySound("alert2.wav");
+   Alert ("A1 for buy "); // ,Day
+   Alert ("Buy ",Symbol(), " (Signal month = ", NormalizeDouble(signal_month,1 ) ,") (week  = ", NormalizeDouble(signal_week ,1) ,
+        ") (1h = ", NormalizeDouble(signal_1h,1 ) ,") (30m = ", NormalizeDouble(signal_30m,1) ,
+        ")(4h diff up= ", NormalizeDouble(diff_4h_up,1) );
+   
+   Comment("A1 for buy ( month,week,hour,30m,15m )signal stoc red > 80 + (4h diff up >10) + day up " , Symbol() ); 
+   }
+  
+  
+//short alerts  1m,5m,15m,30m   
+   if (diff_1m_down >= 10 && diff_5m_down >= 10 && diff_15m_down >= 10  && diff_30m_down >= 10  )
+   {
+   PlaySound("alert2.wav");
+   Alert ("alerts  1m,5m,15m,30m");
+   Alert ("Sell ",Symbol(), " diff_1m =", NormalizeDouble(diff_1m_down,2 ) ," /diff_5m =", NormalizeDouble(diff_5m_down,2) ,
+        " /diff_15m =", NormalizeDouble(diff_15m_down,2 ) ," /diff_30m =", NormalizeDouble(diff_30m_down,2)  );
+   Comment("Sell ",Symbol(), " diff_1m =", NormalizeDouble(diff_1m_down,2 ) ," /diff_5m =", NormalizeDouble(diff_5m_down,2),
+    " /diff_15m =", NormalizeDouble(diff_15m_down,2 ) ," /diff_30m =", NormalizeDouble(diff_30m_down,2)  ); 
+    }
+
+
+   if ((diff_1m_up ) >= 10  && diff_5m_up >=10 && diff_15m_up >=10 && diff_30m_up >=10)
+   {
+   PlaySound("alert2.wav");
+   Alert ("alerts  1m,5m,15m,30m");
+   Alert ("Buy " , Symbol(), " diff_1m =", NormalizeDouble(diff_1m_up ,2) ," /diff_5m =",NormalizeDouble(diff_5m_up,2),
+   " /diff_15m =", NormalizeDouble(diff_15m_up ,2) ," /diff_30m =",NormalizeDouble(diff_30m_up,2));
+   
+   Comment("Buy " , Symbol(), " diff_1m =", NormalizeDouble(diff_1m_up ,2) ," /diff_5m =",NormalizeDouble(diff_5m_up,2),
+   " /diff_15m =", NormalizeDouble(diff_15m_up ,2) ," /diff_30m =",NormalizeDouble(diff_30m_up,2) ); 
+   }
+
+//1h and 4h  alerts    
+   if (diff_1h_down >= 10 && diff_4h_down >= 10 )
+   {
+   PlaySound("alert2.wav");
+   Alert ("alerts  1h and 4h");
+   Alert ("Sell ",Symbol(), " diff_1h_down =", NormalizeDouble(diff_1h_down,2 ) ," /diff_4h_down =", NormalizeDouble(diff_4h_down,2) );
+   Comment("Sell ",Symbol(), " diff_1h_down =", NormalizeDouble(diff_1h_down,2 ) ," /diff_4h_down =", NormalizeDouble(diff_4h_down,2) );
+    }
+
+   if (diff_1h_up >= 10  && diff_4h_up >=10  )
+   {
+   PlaySound("alert2.wav");
+   Alert ("alerts  1h and 4h");
+   Alert ("Buy " , Symbol(), " diff_1h_up =", NormalizeDouble(diff_1h_up ,2) ," /diff_4h_up =",NormalizeDouble(diff_4h_up,2) );
+   
+   Comment("Buy " , Symbol(), " diff_1h_up =", NormalizeDouble(diff_1h_up ,2) ," /diff_4h_up =",NormalizeDouble(diff_4h_up,2) );
+   }    
+  
+   
+//all alerts  1m,5m,15m,30m,1h,4h 
+   if (diff_1m_down >= 10 && diff_5m_down >= 10 && diff_15m_down >= 10  && diff_30m_down >= 10 
+   && diff_1h_down >= 10 && diff_4h_down >= 10) //&& diff_day_down >=10 
+   {
+   PlaySound("alert2.wav");
+   Alert ("all alerts  1m,5m,15m,30m,1h,4h"); // ,Day
+   Alert ("Sell ",Symbol(), " (1m =", NormalizeDouble(diff_1m_down,2 ) ,") (5m =", NormalizeDouble(diff_5m_down,2) ,
+        ") (15m =", NormalizeDouble(diff_15m_down,2 ) ,") (30m =", NormalizeDouble(diff_30m_down,2) ,") 1h =", NormalizeDouble(diff_1h_down,2) ,
+        ")(4h =", NormalizeDouble(diff_4h_down,2)  ,") (Day =", NormalizeDouble(diff_day_down,2),")" );
+   Comment("Sell ",Symbol(), " diff_1m =", NormalizeDouble(diff_1m_down,2 ) ," /diff_5m =", NormalizeDouble(diff_5m_down,2),
+    " /diff_15m =", NormalizeDouble(diff_15m_down,2 ) ," /diff_30m =", NormalizeDouble(diff_30m_down,2)  ); 
+    }
+
+
+   if ( diff_1m_up >= 10  && diff_5m_up >=10 && diff_15m_up >=10 && diff_30m_up >=10
+    && diff_1h_up >= 10  && diff_4h_up >= 10 ) // && diff_day_up >= 10
+   {
+   PlaySound("alert2.wav");
+   Alert ("all alerts  1m,5m,15m,30m,1h,4h"); // ,Day
+   Alert ("Buy " , Symbol(), " (1m =", NormalizeDouble(diff_1m_up ,2) ,") (5m =",NormalizeDouble(diff_5m_up,2),
+   ") (15m =", NormalizeDouble(diff_15m_up ,2) ,") (30m =",NormalizeDouble(diff_30m_up,2),
+   ") (1h =",NormalizeDouble(diff_1h_up,2),") (4h=",NormalizeDouble(diff_4h_up,2),") (Day=",NormalizeDouble(diff_day_up,2), " )");
+   
+   Comment("Buy " , Symbol(), " diff_1m =", NormalizeDouble(diff_1m_up ,2) ," /diff_5m =",NormalizeDouble(diff_5m_up,2),
+   " /diff_15m =", NormalizeDouble(diff_15m_up ,2) ," /diff_30m =",NormalizeDouble(diff_30m_up,2) ); 
+   }
+ 
+*/    
+
+
+ /*
+  // short sell conditions
+bool short1 = (( diff_15m_down > 10 ) && ( main_15m >= 50 ) && ( main_1m == 50 ));
+bool short2 = (( diff_15m_down > 10 ) &&  ( diff_5m_down >10 ) &&  ( main_15m >= 50 ) &&( main_1m >= 70 )) ;
+bool short3 = ( diff_5m_down>10 && main_1m > 80 && main_5m > 30 && main_5m < 70 )  ;
+bool short4 = ( diff_4h_down > 10 && diff_1h_down > 10 && main_15m < 30 && main_15m < signal_15m )  ;
+bool short5 = ( diff_1h_down > 10 && main_5m < 30 &&  main_5m < signal_5m ); 
+bool short6 = ( diff_1h_down > 10 && diff_30m_down > 10 && main_5m < 40 &&  main_5m < signal_5m );
+bool short7 = ( main_1m > signal_1m && main_5m > signal_5m && main_15m > signal_15m && main_1h < signal_1h && main_4h < signal_4h &&  main_day < signal_day && main_week < signal_week && main_month < signal_month);
+bool short8 = ( main_1m > signal_1m && main_5m > signal_5m && main_1h < signal_1h && main_4h < signal_4h &&  main_day < signal_day && main_week < signal_week && main_month < signal_month); 
+bool short9 = ((signal_5m >= 80 ||signal_15m >= 80) && main_30m < signal_30m && main_1h < signal_1h && main_4h < signal_4h &&  main_day < signal_day && main_week < signal_week && main_month < signal_month);  
+bool short10= ( main_1m >= 85 && main_5m >= 85 && main_4h < signal_4h &&  main_day < signal_day && main_week < signal_week && main_month < signal_month); 
+bool short11= ( main_1m == 50 && main_5m <=30 && main_15m <=30 );
+bool short12= ( main_5m ==75 && main_15m <=30 && main_30m <= 20 && main_1h <=20 && main_1h < signal_1h && main_4h <= 70&& main_4h < signal_4h );
+bool short13= ( main_1m >= 80 && main_5m < signal_5m );
+bool short14= ( main_1m >= 80 && main_5m < signal_5m && main_15m < signal_15m );
+bool short15= ( main_1m >= 80 && signal_1m >=80 && main_15m < signal_15m );
+bool short16= ( main_1m >= 80 && signal_1m >=80 && main_5m < signal_5m && main_15m < signal_15m );
+bool short17= ( diff_1h_down > 10 && diff_30m_down > 10 && main_5m < 50 &&  main_15m < signal_15m );
+
+ // long buy conditions
+bool long1 = ( ( diff_15m_up >10 ) && ( main_15m <= 50 ) && ( main_1m == 50 ) );
+bool long2 = ((diff_15m_up >10 ) && (diff_5m_up>10 )&& ( main_15m <= 50 ) && ( main_1m <= 30 )) ;
+bool long3 = ( diff_5m_up >10 && main_1m < 20 && main_5m > 30 && main_5m < 70 )  ;
+bool long4 = ( diff_4h_up > 10 && diff_1h_up > 10 &&main_15m > 70 && main_15m > signal_15m );
+bool long5 = ( diff_1h_up > 10 && main_5m > 70 &&  main_5m > signal_5m ); 
+bool long6 = ( diff_1h_up > 10 && diff_30m_up > 10 && main_5m > 60 &&  main_5m > signal_5m );
+bool long7 = ( main_1m < signal_1m && main_5m < signal_5m && main_1h > signal_1h && main_4h > signal_4h &&  main_day > signal_day && main_week > signal_week && main_month > signal_month); 
+bool long8 = ( main_1m < signal_1m && main_5m < signal_5m && main_15m < signal_15m&& main_1h > signal_1h && main_4h > signal_4h &&  main_day > signal_day && main_week > signal_week && main_month > signal_month);
+bool long9 = ((signal_5m <= 20 ||signal_15m <= 20) && main_30m > signal_30m && main_1h > signal_1h && main_4h > signal_4h &&  main_day > signal_day && main_week > signal_week && main_month > signal_month);
+bool long10 = ( main_1m <= 15 && main_5m <= 15 && main_4h > signal_4h &&  main_day > signal_day && main_week > signal_week && main_month > signal_month);
+bool long11 = ( main_1m == 50 && main_5m >=70 && main_15m >=70 );
+bool long12 = ( main_5m ==25 && main_15m >=70 && main_30m >= 80 && main_1h >=80 && main_1h > signal_1h && main_4h >= 30 && main_4h > signal_4h );
+bool long13 = ( main_1m <= 20 && main_5m > signal_5m );
+bool long14 = ( main_1m <= 20 && main_5m > signal_5m && main_15m > signal_15m );
+bool long15 = ( main_1m <= 20 && signal_1m <=20 && main_15m > signal_15m );
+bool long16 = ( main_1m <= 20 && signal_1m <=20 && main_5m > signal_5m && main_15m > signal_15m );
+bool long17 = ( diff_1h_up > 10 && diff_30m_up > 10 && main_5m > 50 &&  main_15m > signal_15m );
+ */
+/*    
+//+------------------------------------------------------------------+
+/// TEST if and Alert for both sell and buy
+//+------------------------------------------------------------------+   
+  if ( short_test1 && short_test2 )
+  {
+      Alert("down Sell teeeest   ",Symbol(),"#     (main_1m > 80) is ", main_1m ,"#     (main_5m > 70) is ", main_5m  );
+     OrderSend(Symbol(),OP_SELL,Lots,Bid, 0, Bid+StopLoss*Point, Bid-TakeProfit*Point,"LetsFX Lesson1", Magic, 0,LightPink);
+  }
+  if ( long_test1 && long_test2 )
+  { 
+     OrderSend(Symbol(),OP_BUY,Lots,Ask, 5, Ask-StopLoss*Point, Ask+TakeProfit*Point,"LetsFX Lesson1", Magic, 0, RoyalBlue);
+      Alert(" UP Buy teeeest    ",Symbol(),"#      ( main_1m < 20) is ", main_1m ,"#       (main_5m < 30 ) is ", main_5m  );
+  }
+
+ 
+//+------------------------------------------------------------------+
+// Alerts only for Conditions test Ex. Short1, short2, long1, long2, etc,
+//+------------------------------------------------------------------+
+
+//short alerts    
+   if (short1)
+   {Alert ("short1    ", Symbol(), "    ((diff_4h_down >10 ) && ( diff_15m_down > 10 ) && ( main_15m >= 50 ) && ( main_1m == 50 ))");
+   PlaySound("alert2.wav");}
+   if (short2)
+   {Alert ("short2    ", Symbol(), "    (( diff_15m_down > 10 ) &&  ( diff_5m_down >10 ) &&  ( main_15m >= 50 ) &&( main_1m >= 70 ))");
+   PlaySound("alert2.wav");}
+   if (short3)
+   {Alert ("short3    ", Symbol(), "    (diff_5m_down>10 && main_1m > 80) ","diff_5m =   ",diff_5m_down,"main_1m = ",main_1m );
+   PlaySound("alert2.wav");}
+   if (short4)
+   {Alert ("short4    ", Symbol(), "    ( diff_4h_down > 10 && main_15m < 30 && main_15m < signal_15m )");
+   PlaySound("alert2.wav");}
+   if (short5)
+   {Alert ("short5    ", Symbol(), "    ( diff_1h_down > 10 && main_5m < 30 &&  main_5m < signal_5m )");
+   PlaySound("alert2.wav");}
+   if (short6)
+   {Alert ("short6    ", Symbol(), "  ( diff_1h_down > 10 && diff_30m_down > 10 && main_5m < 40 &&  main_5m < signal_5m )");
+   PlaySound("alert2.wav");}
+   if (short7)
+   {Alert ("short7    ", Symbol(), "  ");
+   PlaySound("alert2.wav");}
+   if (short8)
+   {Alert ("short8    ", Symbol(), "  ");
+   PlaySound("alert2.wav");}
+   if (short9)
+   {Alert ("short9    ", Symbol(), "  ");
+   PlaySound("alert2.wav");}
+   if (short10)
+   {Alert ("short10    ", Symbol(), "  ");
+   PlaySound("alert2.wav");}
+   if (short11)
+   {Alert ("short11    ", Symbol(), "  ");
+   PlaySound("alert2.wav");}
+   if (short12)
+   {Alert ("short12    ", Symbol(), "  ");
+   PlaySound("alert2.wav");}
+   if (short13)
+   {Alert ("short13    ", Symbol(), "  ");
+   PlaySound("alert2.wav");}
+   if (short14)
+   {Alert ("short14    ", Symbol(), "  ");
+   PlaySound("alert2.wav");}
+   if (short15)
+   {Alert ("short15    ", Symbol(), "  ");
+   PlaySound("alert2.wav");}
+   if (short16)
+   {Alert ("short16    ", Symbol(), "  ");
+   PlaySound("alert2.wav");}
+   if (short17)
+   {Alert ("short17    ", Symbol(), "  ");
+   PlaySound("alert2.wav");}
+   
+   
+   
+//long alerts   
+   if (long1)
+   Alert ("long1     ", Symbol(), "    (diff_4h_up >10 ) && ( diff_15m_up >10 ) && ( main_15m <= 50 ) && ( main_1m == 50 ) ;");
+   if (long2)
+   Alert ("long2     ", Symbol(), "    ((diff_15m_up >10 ) && (diff_5m_up>10 )&& ( main_15m <= 50 ) && ( main_1m <= 30 ))");
+   if (long3)
+   Alert ("long3     ", Symbol(), "    (diff_5m_up>10 && main_1m < 20 )","diff_5m_up=  ",diff_5m_up, "main_1m =  ",main_1m);
+   if (long4)
+   Alert ("long4     ", Symbol(), "    ( diff_4h_up > 10 && main_15m > 70 && main_15m > signal_15m )");
+   if (long5)
+   Alert ("long5     ", Symbol(), "    ( diff_1h_up > 10 && main_5m > 70 &&  main_5m > signal_5m)  ");
+   if (long6)
+   Alert ("long6     ", Symbol(), "    ( diff_1h_up > 10 && diff_30m_up > 10 && main_5m > 60 &&  main_5m > signal_5m )" );
+   if (long7)
+   Alert ("long7     ", Symbol(), "    " );
+   if (long8)
+   Alert ("long8     ", Symbol(), "    " );
+   if (long9)
+   Alert ("long9     ", Symbol(), "    " );
+   if (long10)
+   Alert ("long10     ", Symbol(), "    " );
+   if (long11)
+   Alert ("long11     ", Symbol(), "    " );
+   if (long12)
+   Alert ("long12     ", Symbol(), "    " );
+   if (long13)
+   Alert ("long13     ", Symbol(), "    " );
+   if (long14)
+   Alert ("long14     ", Symbol(), "    " );
+   if (long15)
+   Alert ("long15     ", Symbol(), "    " );
+   if (long16)
+   Alert ("long16     ", Symbol(), "    " );
+   if (long17)
+   Alert ("long17     ", Symbol(), "    " );
+   
+//+------------------------------------------------------------------+
+// Actual orders for sell and buy for the Ok conditions 
+//+------------------------------------------------------------------+
+if ( short1 || short2 || short3 || short4 || short5 || short6 || short7 || short8  || short9  || short10  || short11  || short12  || short13  || short14  || short15  || short16  || short17 )
+   {
+         OrderSend(Symbol(),OP_SELL,Lots,Bid, 0, Bid+StopLoss*Point, Bid-TakeProfit*Point,"LetsFX Lesson1", Magic, 0,LightPink);     
+   }
+   
+  if ( long1 || long2 || long3 || long4 || long5 || long6 || long7 || long8 || long9 || long10 || long11 || long12 || long13 || long14 || long15 || long16 || long17 )
+   {
+       OrderSend(Symbol(),OP_BUY,Lots,Ask, 5, Ask-StopLoss*Point, Ask+TakeProfit*Point,"LetsFX Lesson1", Magic, 0, RoyalBlue);
+   }
+
+  
+   Comment("I LOVE YOU : ");
+   */ 
+   
+//----
+   
+//----
+   return(0);
+  }
+  }
+  
+//+------------------------------------------------------------------+
+
+//+------------------------------------------------------------------+
+// a SUB program or sub funcation to Close all orders at a certain time   
+//+------------------------------------------------------------------+
+
+void close_all_trades()
+{
+    for(i=OrdersTotal()-1;i>=0;i--)
+       {
+       OrderSelect(i, SELECT_BY_POS);
+       int type   = OrderType();
+               
+       bool result = false;
+              
+       switch(type)
+          {
+          //Close opened long positions
+          case OP_BUY  : result = OrderClose(OrderTicket(),OrderLots(),MarketInfo(OrderSymbol(),MODE_BID),Slippage,Pink);
+                         break;
+               
+          //Close opened short positions
+          case OP_SELL : result = OrderClose(OrderTicket(),OrderLots(),MarketInfo(OrderSymbol(),MODE_ASK),Slippage,Pink);
+                         break;
+          //Close pending orders
+            case OP_BUYLIMIT  :
+            case OP_BUYSTOP   :
+            case OP_SELLLIMIT :
+            case OP_SELLSTOP  : result = OrderDelete( OrderTicket() );                
+          }
+          
+       if(result == false)
+          {
+            Sleep(3000);
+          }  
+       }
+      Print ("Account Profit Reached. All Open & Pending Trades Have Been Closed");
+      
+      
+      return(0);
+   }  
+   
+
+//+------------------------------------------------------------------+

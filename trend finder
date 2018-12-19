@@ -139,7 +139,7 @@ double body3Month = MathAbs(iOpen(Symbol(),PERIOD_MN1 ,3) - iClose(Symbol(),PERI
 double body4Month = MathAbs(iOpen(Symbol(),PERIOD_MN1 ,4) - iClose(Symbol(),PERIOD_MN1 ,4));
 double body5Month = MathAbs(iOpen(Symbol(),PERIOD_MN1 ,5) - iClose(Symbol(),PERIOD_MN1 ,5));
 double avarageBodyMonth= ( (body0Month+body1Month+body2Month+body3Month+body4Month+body5Month)/6);
-Alert ( openMonthPrice ,"  and close price is  " ,closeMonthPrice ,"   body0Month is  " , body0Month , "  avrage is  ", avarageBodyMonth);
+
 
 // calculate the avarage  body of  the candle in week frame
 double body0Week = MathAbs(iOpen(Symbol(),PERIOD_W1 ,0) - iClose(Symbol(),PERIOD_W1 ,0));
@@ -159,265 +159,76 @@ double body4Day = MathAbs(iOpen(Symbol(),PERIOD_D1,4) - iClose(Symbol(),PERIOD_D
 double body5Day = MathAbs(iOpen(Symbol(),PERIOD_D1,5) - iClose(Symbol(),PERIOD_D1,5));
 double avarageBodyDay= ( (body0Day+body1Day+body2Day+body3Day+body4Day+body5Day)/6);
 
+// trend Down short sell conditions
+bool trendDown1 = ( openMonthPrice > closeMonthPrice &&  body0Month > avarageBodyMonth &&   // month frame candle is down and have strong body
+                     // month frame difference (ignored )
+                     // month frame sochactsic ( ignored
+                      openWeekPrice > closeWeekPrice &&  body0Week > avarageBodyWeek &&   // week frame candle is down and have strong body
+                      diff_week_down > 10 &&                                              // week frame difference
+                      main_week < signal_week &&                                           // week frame sochactsic
+                openWeekPrice > closeWeekPrice &&                              // day frame candle is down and have strong body (ignore the candle size)
+                diff_day_down > 10  &&                                        // day frame difference
+                main_day < signal_day  );                                       // day frame sochactsic
+/*
+bool trendDown2 = ( )) ;
+bool trendDown3 = (  )  ;
+bool trendDown4 = (  )  ;
+bool trendDown5 = (  ); 
+bool trendDown6 = (  );
+*/
 
-if ( 
+// trend Up short sell conditions
+/*
+bool trendUp1 = (  );
+bool trendUp2 = (  ) ;
+bool trendUp3 = (   )  ;
+bool trendUp4 = (  );
+bool trendUp5 = (  ); 
+bool trendUp6 = (  ); 
+*/
 
- ) 
-   {
-   PlaySound("alert2.wav");
-   Alert ("A1 for sell"); // ,Day
-   Comment(" A1 for Sell ( month,week,hour,30m,15m )signal stoc red < 20 + (4h diff down >10) + day down ",Symbol()  ); 
-    }
-
-
-/* 
-//A1 for sell ( month,week,hour,30m,15m )signal stoc red < 20 + (4h diff down >10) + day down
-//A1 for buy ( month,week,hour,30m,15m )signal stoc red > 80 + (4h diff up >10) + day up
-if ( diff_1h_down>= 10 && diff_4h_down >= 10 && main_1m < signal_1m && main_5m < signal_5m && main_15m < signal_15m && main_30m < signal_30m ) 
-   {
-   PlaySound("alert2.wav");
-   Alert ("A1 for sell"); // ,Day
-   Alert ("Sell ",Symbol(), " (Signal month = ", NormalizeDouble(signal_month,1 ) ,") (week  = ", NormalizeDouble(signal_week ,1) ,
-        ") (1h = ", NormalizeDouble(signal_1h,1 ) ,") (30m = ", NormalizeDouble(signal_30m,1) ,
-        ")(4h diff down= ", NormalizeDouble(diff_4h_down,1) );
-   Comment(" A1 for Sell ( month,week,hour,30m,15m )signal stoc red < 20 + (4h diff down >10) + day down ",Symbol()  ); 
-    }
-
-
-   if ( diff_1h_up >=10 && diff_4h_up >= 10&& main_1m > signal_1m && main_5m > signal_5m && main_15m > signal_15m && main_30m > signal_30m) 
-   {
-   PlaySound("alert2.wav");
-   Alert ("A1 for buy "); // ,Day
-   Alert ("Buy ",Symbol(), " (Signal month = ", NormalizeDouble(signal_month,1 ) ,") (week  = ", NormalizeDouble(signal_week ,1) ,
-        ") (1h = ", NormalizeDouble(signal_1h,1 ) ,") (30m = ", NormalizeDouble(signal_30m,1) ,
-        ")(4h diff up= ", NormalizeDouble(diff_4h_up,1) );
-   
-   Comment("A1 for buy ( month,week,hour,30m,15m )signal stoc red > 80 + (4h diff up >10) + day up " , Symbol() ); 
-   }
-  
-  
-//short alerts  1m,5m,15m,30m   
-   if (diff_1m_down >= 10 && diff_5m_down >= 10 && diff_15m_down >= 10  && diff_30m_down >= 10  )
-   {
-   PlaySound("alert2.wav");
-   Alert ("alerts  1m,5m,15m,30m");
-   Alert ("Sell ",Symbol(), " diff_1m =", NormalizeDouble(diff_1m_down,2 ) ," /diff_5m =", NormalizeDouble(diff_5m_down,2) ,
-        " /diff_15m =", NormalizeDouble(diff_15m_down,2 ) ," /diff_30m =", NormalizeDouble(diff_30m_down,2)  );
-   Comment("Sell ",Symbol(), " diff_1m =", NormalizeDouble(diff_1m_down,2 ) ," /diff_5m =", NormalizeDouble(diff_5m_down,2),
-    " /diff_15m =", NormalizeDouble(diff_15m_down,2 ) ," /diff_30m =", NormalizeDouble(diff_30m_down,2)  ); 
-    }
-
-
-   if ((diff_1m_up ) >= 10  && diff_5m_up >=10 && diff_15m_up >=10 && diff_30m_up >=10)
-   {
-   PlaySound("alert2.wav");
-   Alert ("alerts  1m,5m,15m,30m");
-   Alert ("Buy " , Symbol(), " diff_1m =", NormalizeDouble(diff_1m_up ,2) ," /diff_5m =",NormalizeDouble(diff_5m_up,2),
-   " /diff_15m =", NormalizeDouble(diff_15m_up ,2) ," /diff_30m =",NormalizeDouble(diff_30m_up,2));
-   
-   Comment("Buy " , Symbol(), " diff_1m =", NormalizeDouble(diff_1m_up ,2) ," /diff_5m =",NormalizeDouble(diff_5m_up,2),
-   " /diff_15m =", NormalizeDouble(diff_15m_up ,2) ," /diff_30m =",NormalizeDouble(diff_30m_up,2) ); 
-   }
-
-//1h and 4h  alerts    
-   if (diff_1h_down >= 10 && diff_4h_down >= 10 )
-   {
-   PlaySound("alert2.wav");
-   Alert ("alerts  1h and 4h");
-   Alert ("Sell ",Symbol(), " diff_1h_down =", NormalizeDouble(diff_1h_down,2 ) ," /diff_4h_down =", NormalizeDouble(diff_4h_down,2) );
-   Comment("Sell ",Symbol(), " diff_1h_down =", NormalizeDouble(diff_1h_down,2 ) ," /diff_4h_down =", NormalizeDouble(diff_4h_down,2) );
-    }
-
-   if (diff_1h_up >= 10  && diff_4h_up >=10  )
-   {
-   PlaySound("alert2.wav");
-   Alert ("alerts  1h and 4h");
-   Alert ("Buy " , Symbol(), " diff_1h_up =", NormalizeDouble(diff_1h_up ,2) ," /diff_4h_up =",NormalizeDouble(diff_4h_up,2) );
-   
-   Comment("Buy " , Symbol(), " diff_1h_up =", NormalizeDouble(diff_1h_up ,2) ," /diff_4h_up =",NormalizeDouble(diff_4h_up,2) );
-   }    
-  
-   
-//all alerts  1m,5m,15m,30m,1h,4h 
-   if (diff_1m_down >= 10 && diff_5m_down >= 10 && diff_15m_down >= 10  && diff_30m_down >= 10 
-   && diff_1h_down >= 10 && diff_4h_down >= 10) //&& diff_day_down >=10 
-   {
-   PlaySound("alert2.wav");
-   Alert ("all alerts  1m,5m,15m,30m,1h,4h"); // ,Day
-   Alert ("Sell ",Symbol(), " (1m =", NormalizeDouble(diff_1m_down,2 ) ,") (5m =", NormalizeDouble(diff_5m_down,2) ,
-        ") (15m =", NormalizeDouble(diff_15m_down,2 ) ,") (30m =", NormalizeDouble(diff_30m_down,2) ,") 1h =", NormalizeDouble(diff_1h_down,2) ,
-        ")(4h =", NormalizeDouble(diff_4h_down,2)  ,") (Day =", NormalizeDouble(diff_day_down,2),")" );
-   Comment("Sell ",Symbol(), " diff_1m =", NormalizeDouble(diff_1m_down,2 ) ," /diff_5m =", NormalizeDouble(diff_5m_down,2),
-    " /diff_15m =", NormalizeDouble(diff_15m_down,2 ) ," /diff_30m =", NormalizeDouble(diff_30m_down,2)  ); 
-    }
-
-
-   if ( diff_1m_up >= 10  && diff_5m_up >=10 && diff_15m_up >=10 && diff_30m_up >=10
-    && diff_1h_up >= 10  && diff_4h_up >= 10 ) // && diff_day_up >= 10
-   {
-   PlaySound("alert2.wav");
-   Alert ("all alerts  1m,5m,15m,30m,1h,4h"); // ,Day
-   Alert ("Buy " , Symbol(), " (1m =", NormalizeDouble(diff_1m_up ,2) ,") (5m =",NormalizeDouble(diff_5m_up,2),
-   ") (15m =", NormalizeDouble(diff_15m_up ,2) ,") (30m =",NormalizeDouble(diff_30m_up,2),
-   ") (1h =",NormalizeDouble(diff_1h_up,2),") (4h=",NormalizeDouble(diff_4h_up,2),") (Day=",NormalizeDouble(diff_day_up,2), " )");
-   
-   Comment("Buy " , Symbol(), " diff_1m =", NormalizeDouble(diff_1m_up ,2) ," /diff_5m =",NormalizeDouble(diff_5m_up,2),
-   " /diff_15m =", NormalizeDouble(diff_15m_up ,2) ," /diff_30m =",NormalizeDouble(diff_30m_up,2) ); 
-   }
- 
-*/    
-
-
- /*
-  // short sell conditions
-bool short1 = (( diff_15m_down > 10 ) && ( main_15m >= 50 ) && ( main_1m == 50 ));
-bool short2 = (( diff_15m_down > 10 ) &&  ( diff_5m_down >10 ) &&  ( main_15m >= 50 ) &&( main_1m >= 70 )) ;
-bool short3 = ( diff_5m_down>10 && main_1m > 80 && main_5m > 30 && main_5m < 70 )  ;
-bool short4 = ( diff_4h_down > 10 && diff_1h_down > 10 && main_15m < 30 && main_15m < signal_15m )  ;
-bool short5 = ( diff_1h_down > 10 && main_5m < 30 &&  main_5m < signal_5m ); 
-bool short6 = ( diff_1h_down > 10 && diff_30m_down > 10 && main_5m < 40 &&  main_5m < signal_5m );
-bool short7 = ( main_1m > signal_1m && main_5m > signal_5m && main_15m > signal_15m && main_1h < signal_1h && main_4h < signal_4h &&  main_day < signal_day && main_week < signal_week && main_month < signal_month);
-bool short8 = ( main_1m > signal_1m && main_5m > signal_5m && main_1h < signal_1h && main_4h < signal_4h &&  main_day < signal_day && main_week < signal_week && main_month < signal_month); 
-bool short9 = ((signal_5m >= 80 ||signal_15m >= 80) && main_30m < signal_30m && main_1h < signal_1h && main_4h < signal_4h &&  main_day < signal_day && main_week < signal_week && main_month < signal_month);  
-bool short10= ( main_1m >= 85 && main_5m >= 85 && main_4h < signal_4h &&  main_day < signal_day && main_week < signal_week && main_month < signal_month); 
-bool short11= ( main_1m == 50 && main_5m <=30 && main_15m <=30 );
-bool short12= ( main_5m ==75 && main_15m <=30 && main_30m <= 20 && main_1h <=20 && main_1h < signal_1h && main_4h <= 70&& main_4h < signal_4h );
-bool short13= ( main_1m >= 80 && main_5m < signal_5m );
-bool short14= ( main_1m >= 80 && main_5m < signal_5m && main_15m < signal_15m );
-bool short15= ( main_1m >= 80 && signal_1m >=80 && main_15m < signal_15m );
-bool short16= ( main_1m >= 80 && signal_1m >=80 && main_5m < signal_5m && main_15m < signal_15m );
-bool short17= ( diff_1h_down > 10 && diff_30m_down > 10 && main_5m < 50 &&  main_15m < signal_15m );
-
- // long buy conditions
-bool long1 = ( ( diff_15m_up >10 ) && ( main_15m <= 50 ) && ( main_1m == 50 ) );
-bool long2 = ((diff_15m_up >10 ) && (diff_5m_up>10 )&& ( main_15m <= 50 ) && ( main_1m <= 30 )) ;
-bool long3 = ( diff_5m_up >10 && main_1m < 20 && main_5m > 30 && main_5m < 70 )  ;
-bool long4 = ( diff_4h_up > 10 && diff_1h_up > 10 &&main_15m > 70 && main_15m > signal_15m );
-bool long5 = ( diff_1h_up > 10 && main_5m > 70 &&  main_5m > signal_5m ); 
-bool long6 = ( diff_1h_up > 10 && diff_30m_up > 10 && main_5m > 60 &&  main_5m > signal_5m );
-bool long7 = ( main_1m < signal_1m && main_5m < signal_5m && main_1h > signal_1h && main_4h > signal_4h &&  main_day > signal_day && main_week > signal_week && main_month > signal_month); 
-bool long8 = ( main_1m < signal_1m && main_5m < signal_5m && main_15m < signal_15m&& main_1h > signal_1h && main_4h > signal_4h &&  main_day > signal_day && main_week > signal_week && main_month > signal_month);
-bool long9 = ((signal_5m <= 20 ||signal_15m <= 20) && main_30m > signal_30m && main_1h > signal_1h && main_4h > signal_4h &&  main_day > signal_day && main_week > signal_week && main_month > signal_month);
-bool long10 = ( main_1m <= 15 && main_5m <= 15 && main_4h > signal_4h &&  main_day > signal_day && main_week > signal_week && main_month > signal_month);
-bool long11 = ( main_1m == 50 && main_5m >=70 && main_15m >=70 );
-bool long12 = ( main_5m ==25 && main_15m >=70 && main_30m >= 80 && main_1h >=80 && main_1h > signal_1h && main_4h >= 30 && main_4h > signal_4h );
-bool long13 = ( main_1m <= 20 && main_5m > signal_5m );
-bool long14 = ( main_1m <= 20 && main_5m > signal_5m && main_15m > signal_15m );
-bool long15 = ( main_1m <= 20 && signal_1m <=20 && main_15m > signal_15m );
-bool long16 = ( main_1m <= 20 && signal_1m <=20 && main_5m > signal_5m && main_15m > signal_15m );
-bool long17 = ( diff_1h_up > 10 && diff_30m_up > 10 && main_5m > 50 &&  main_15m > signal_15m );
- */
-/*    
 //+------------------------------------------------------------------+
-/// TEST if and Alert for both sell and buy
-//+------------------------------------------------------------------+   
-  if ( short_test1 && short_test2 )
-  {
-      Alert("down Sell teeeest   ",Symbol(),"#     (main_1m > 80) is ", main_1m ,"#     (main_5m > 70) is ", main_5m  );
-     OrderSend(Symbol(),OP_SELL,Lots,Bid, 0, Bid+StopLoss*Point, Bid-TakeProfit*Point,"LetsFX Lesson1", Magic, 0,LightPink);
-  }
-  if ( long_test1 && long_test2 )
-  { 
-     OrderSend(Symbol(),OP_BUY,Lots,Ask, 5, Ask-StopLoss*Point, Ask+TakeProfit*Point,"LetsFX Lesson1", Magic, 0, RoyalBlue);
-      Alert(" UP Buy teeeest    ",Symbol(),"#      ( main_1m < 20) is ", main_1m ,"#       (main_5m < 30 ) is ", main_5m  );
-  }
-
- 
-//+------------------------------------------------------------------+
-// Alerts only for Conditions test Ex. Short1, short2, long1, long2, etc,
+// Alerts only for Conditions test Ex. trendDown1, trendDown2, trendUp1, trendUp2, etc,
 //+------------------------------------------------------------------+
 
 //short alerts    
-   if (short1)
-   {Alert ("short1    ", Symbol(), "    ((diff_4h_down >10 ) && ( diff_15m_down > 10 ) && ( main_15m >= 50 ) && ( main_1m == 50 ))");
+   if (trendDown1)
+   {Alert ("trendDown1    ", Symbol(), "  ");
    PlaySound("alert2.wav");}
-   if (short2)
-   {Alert ("short2    ", Symbol(), "    (( diff_15m_down > 10 ) &&  ( diff_5m_down >10 ) &&  ( main_15m >= 50 ) &&( main_1m >= 70 ))");
+  /* if (trendDown2)
+   {Alert ("trendDown2    ", Symbol(), "  ");
    PlaySound("alert2.wav");}
-   if (short3)
-   {Alert ("short3    ", Symbol(), "    (diff_5m_down>10 && main_1m > 80) ","diff_5m =   ",diff_5m_down,"main_1m = ",main_1m );
+   if (trendDown3)
+   {Alert ("trendDown3    ", Symbol(), "   " );
    PlaySound("alert2.wav");}
-   if (short4)
-   {Alert ("short4    ", Symbol(), "    ( diff_4h_down > 10 && main_15m < 30 && main_15m < signal_15m )");
+   if (trendDown4)
+   {Alert ("trendDown4    ", Symbol(), "  " );
    PlaySound("alert2.wav");}
-   if (short5)
-   {Alert ("short5    ", Symbol(), "    ( diff_1h_down > 10 && main_5m < 30 &&  main_5m < signal_5m )");
+   if (trendDown5)
+   {Alert ("trendDown5    ", Symbol(), "    ");
    PlaySound("alert2.wav");}
-   if (short6)
-   {Alert ("short6    ", Symbol(), "  ( diff_1h_down > 10 && diff_30m_down > 10 && main_5m < 40 &&  main_5m < signal_5m )");
+   if (trendDown6)
+   {Alert ("trendDown6    ", Symbol(), "    ");
    PlaySound("alert2.wav");}
-   if (short7)
-   {Alert ("short7    ", Symbol(), "  ");
-   PlaySound("alert2.wav");}
-   if (short8)
-   {Alert ("short8    ", Symbol(), "  ");
-   PlaySound("alert2.wav");}
-   if (short9)
-   {Alert ("short9    ", Symbol(), "  ");
-   PlaySound("alert2.wav");}
-   if (short10)
-   {Alert ("short10    ", Symbol(), "  ");
-   PlaySound("alert2.wav");}
-   if (short11)
-   {Alert ("short11    ", Symbol(), "  ");
-   PlaySound("alert2.wav");}
-   if (short12)
-   {Alert ("short12    ", Symbol(), "  ");
-   PlaySound("alert2.wav");}
-   if (short13)
-   {Alert ("short13    ", Symbol(), "  ");
-   PlaySound("alert2.wav");}
-   if (short14)
-   {Alert ("short14    ", Symbol(), "  ");
-   PlaySound("alert2.wav");}
-   if (short15)
-   {Alert ("short15    ", Symbol(), "  ");
-   PlaySound("alert2.wav");}
-   if (short16)
-   {Alert ("short16    ", Symbol(), "  ");
-   PlaySound("alert2.wav");}
-   if (short17)
-   {Alert ("short17    ", Symbol(), "  ");
-   PlaySound("alert2.wav");}
-   
    
    
 //long alerts   
-   if (long1)
-   Alert ("long1     ", Symbol(), "    (diff_4h_up >10 ) && ( diff_15m_up >10 ) && ( main_15m <= 50 ) && ( main_1m == 50 ) ;");
-   if (long2)
-   Alert ("long2     ", Symbol(), "    ((diff_15m_up >10 ) && (diff_5m_up>10 )&& ( main_15m <= 50 ) && ( main_1m <= 30 ))");
-   if (long3)
-   Alert ("long3     ", Symbol(), "    (diff_5m_up>10 && main_1m < 20 )","diff_5m_up=  ",diff_5m_up, "main_1m =  ",main_1m);
-   if (long4)
-   Alert ("long4     ", Symbol(), "    ( diff_4h_up > 10 && main_15m > 70 && main_15m > signal_15m )");
-   if (long5)
-   Alert ("long5     ", Symbol(), "    ( diff_1h_up > 10 && main_5m > 70 &&  main_5m > signal_5m)  ");
-   if (long6)
-   Alert ("long6     ", Symbol(), "    ( diff_1h_up > 10 && diff_30m_up > 10 && main_5m > 60 &&  main_5m > signal_5m )" );
-   if (long7)
-   Alert ("long7     ", Symbol(), "    " );
-   if (long8)
-   Alert ("long8     ", Symbol(), "    " );
-   if (long9)
-   Alert ("long9     ", Symbol(), "    " );
-   if (long10)
-   Alert ("long10     ", Symbol(), "    " );
-   if (long11)
-   Alert ("long11     ", Symbol(), "    " );
-   if (long12)
-   Alert ("long12     ", Symbol(), "    " );
-   if (long13)
-   Alert ("long13     ", Symbol(), "    " );
-   if (long14)
-   Alert ("long14     ", Symbol(), "    " );
-   if (long15)
-   Alert ("long15     ", Symbol(), "    " );
-   if (long16)
-   Alert ("long16     ", Symbol(), "    " );
-   if (long17)
-   Alert ("long17     ", Symbol(), "    " );
+   if (trendUp1)
+   Alert ("trendUp1     ", Symbol(), "    ");
+   if (trendUp2)
+   Alert ("trendUp2     ", Symbol(), "   " );
+   if (trendUp3)
+   Alert ("trendUp3     ", Symbol(), "    ");
+   if (trendUp3)
+   Alert ("trendUp4     ", Symbol(), "    ");
+   if (trendUp5)
+   Alert ("trendUp5     ", Symbol(), "    ");
+   if (trendUp6)
+   Alert ("trendUp6     ", Symbol(), "     " );
+   */
    
+   
+  /* 
 //+------------------------------------------------------------------+
 // Actual orders for sell and buy for the Ok conditions 
 //+------------------------------------------------------------------+

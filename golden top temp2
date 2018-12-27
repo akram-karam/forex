@@ -12,7 +12,8 @@
 extern double  Lots         = 0.1;
 extern int     StopLoss     = 500 ;
 extern int     TakeProfit   = 20 ;
-                                          
+
+ 
 int Slippage=5;
 int i;
 
@@ -60,7 +61,9 @@ int start()
 // and this code request the sub function named (close_all_trades());                                          |
 //+------------------------------------------------------------------+ 
  //if ( (Minute()==15 ||Minute()==30 ||Minute()==45 || Minute()==00 ) && Seconds () == 0) PlaySound("ok.wav");;
- if (Hour()==0&& Minute()==0 && Seconds () <= 5)close_all_trades();
+ 
+ //if (Hour()==0&& Minute()==0 && Seconds () <= 5)close_all_trades();
+ 
  /* to call the sub funcation to close all orders at a certain time for examle at 12 PM
  Note:I put also a condition for minute (Minute()<=1) because the EA will continue to close
  any position will opened untill the Hour changed more than ZERO (12 AM ),
@@ -68,7 +71,7 @@ int start()
  
  
  // if ( (OrdersTotal () <= 2) )// to determine the total number of opened orders not more than 3 orders 
-     
+      if (  Seconds () <= 4)
 
   { 
     
@@ -125,6 +128,125 @@ double diff_1m_up , diff_5m_up , diff_15m_up , diff_30m_up , diff_1h_up , diff_4
   diff_week_up = main_week-signal_week ;
   diff_month_up = main_month-signal_month ;
 
+
+// trend tester each hour the expert test the direction of the trend
+
+  
+//open and close price for current candle in the month,week,and day frames
+double openMonthPrice = iOpen(Symbol(),PERIOD_MN1 ,0) ;// the open price of the candle 0 (the current candle)on the month frame
+double openWeekPrice = iOpen(Symbol(),PERIOD_W1 ,0) ;// the open price of the candle 0 (the current candle)on the week frame
+double openDayPrice = iOpen(Symbol(),PERIOD_D1 ,0) ;// the open price of the candle 0 (the current candle)on the day frame
+double closeMonthPrice = iClose(Symbol(),PERIOD_MN1 ,0);// the close price of the candle 0 (the current candle)on the month frame
+double closeWeekPrice = iClose(Symbol(),PERIOD_W1 ,0);// the close price of the candle 0 (the current candle)on the week frame
+double closeDayPrice = iClose(Symbol(),PERIOD_D1 ,0);// the close price of the candle 0 (the current candle)on the day frame
+
+// calculate the avarage  body of  the candle in month frame
+double body0Month = MathAbs(iOpen(Symbol(),PERIOD_MN1 ,0) - iClose(Symbol(),PERIOD_MN1 ,0));
+double body1Month = MathAbs(iOpen(Symbol(),PERIOD_MN1 ,1) - iClose(Symbol(),PERIOD_MN1 ,1));
+double body2Month = MathAbs(iOpen(Symbol(),PERIOD_MN1 ,2) - iClose(Symbol(),PERIOD_MN1 ,2));
+double body3Month = MathAbs(iOpen(Symbol(),PERIOD_MN1 ,3) - iClose(Symbol(),PERIOD_MN1 ,3));
+double body4Month = MathAbs(iOpen(Symbol(),PERIOD_MN1 ,4) - iClose(Symbol(),PERIOD_MN1 ,4));
+double body5Month = MathAbs(iOpen(Symbol(),PERIOD_MN1 ,5) - iClose(Symbol(),PERIOD_MN1 ,5));
+double avarageBodyMonth= ( (body0Month+body1Month+body2Month+body3Month+body4Month+body5Month)/6);
+
+
+// calculate the avarage  body of  the candle in week frame
+double body0Week = MathAbs(iOpen(Symbol(),PERIOD_W1 ,0) - iClose(Symbol(),PERIOD_W1 ,0));
+double body1Week = MathAbs(iOpen(Symbol(),PERIOD_W1 ,1) - iClose(Symbol(),PERIOD_W1 ,1));
+double body2Week = MathAbs(iOpen(Symbol(),PERIOD_W1 ,2) - iClose(Symbol(),PERIOD_W1 ,2));
+double body3Week = MathAbs(iOpen(Symbol(),PERIOD_W1 ,3) - iClose(Symbol(),PERIOD_W1 ,3));
+double body4Week = MathAbs(iOpen(Symbol(),PERIOD_W1 ,4) - iClose(Symbol(),PERIOD_W1 ,4));
+double body5Week = MathAbs(iOpen(Symbol(),PERIOD_W1 ,5) - iClose(Symbol(),PERIOD_W1 ,5));
+double avarageBodyWeek= ( (body0Week+body1Week+body2Week+body3Week+body4Week+body5Week)/6);
+
+// calculate the avarage  body of  the candle in Day frame
+double body0Day = MathAbs(iOpen(Symbol(),PERIOD_D1,0) - iClose(Symbol(),PERIOD_D1,0));
+double body1Day = MathAbs(iOpen(Symbol(),PERIOD_D1,1) - iClose(Symbol(),PERIOD_D1,1));
+double body2Day = MathAbs(iOpen(Symbol(),PERIOD_D1,2) - iClose(Symbol(),PERIOD_D1,2));
+double body3Day = MathAbs(iOpen(Symbol(),PERIOD_D1,3) - iClose(Symbol(),PERIOD_D1,3));
+double body4Day = MathAbs(iOpen(Symbol(),PERIOD_D1,4) - iClose(Symbol(),PERIOD_D1,4));
+double body5Day = MathAbs(iOpen(Symbol(),PERIOD_D1,5) - iClose(Symbol(),PERIOD_D1,5));
+double avarageBodyDay= ( (body0Day+body1Day+body2Day+body3Day+body4Day+body5Day)/6);
+
+// trend Down short sell conditions
+bool trendDown1 = ( openMonthPrice > closeMonthPrice && // body0Month > avarageBodyMonth &&   // month frame candle is down and have strong body
+                     // month frame difference (ignored )
+                     // month frame sochactsic ( ignored
+                      openWeekPrice > closeWeekPrice && // body0Week > avarageBodyWeek &&   // week frame candle is down and have strong body
+                      diff_week_down > 10 &&                                              // week frame difference
+                      main_week < signal_week &&                                           // week frame sochactsic
+                openDayPrice > closeDayPrice &&                              // day frame candle is down and have strong body (ignore the candle size)
+                //diff_day_down > 10  &&                                        // day frame difference
+                main_day < signal_day  );                                       // day frame sochactsic
+/*
+bool trendDown2 = ( )) ;
+bool trendDown3 = (  )  ;
+bool trendDown4 = (  )  ;
+bool trendDown5 = (  ); 
+bool trendDown6 = (  );
+*/
+
+// trend Up short sell conditions
+
+bool trendUp1 = ( openMonthPrice < closeMonthPrice && // body0Month > avarageBodyMonth &&   // month frame candle is down and have strong body
+                     // month frame difference (ignored )
+                     // month frame sochactsic ( ignored
+                      openWeekPrice < closeWeekPrice &&  //body0Week > avarageBodyWeek &&   // week frame candle is down and have strong body
+                      diff_week_up > 10 &&                                              // week frame difference
+                      main_week > signal_week &&                                           // week frame sochactsic
+                openDayPrice < closeDayPrice &&                              // day frame candle is down and have strong body (ignore the candle size)
+                //diff_day_up > 10  &&                                        // day frame difference
+                main_day > signal_day  );                                       // day frame sochactsic
+/*
+bool trendUp2 = (  ) ;
+bool trendUp3 = (   )  ;
+bool trendUp4 = (  );
+bool trendUp5 = (  ); 
+bool trendUp6 = (  ); 
+*/
+
+//+------------------------------------------------------------------+
+// Alerts only for Conditions test Ex. trendDown1, trendDown2, trendUp1, trendUp2, etc,
+//+------------------------------------------------------------------+
+ /*
+//short alerts    
+   if (trendDown1)
+   {Alert ("trendDown1    ", Symbol(), "  ");
+   PlaySound("alert2.wav");}
+  if (trendDown2)
+   {Alert ("trendDown2    ", Symbol(), "  ");
+   PlaySound("alert2.wav");}
+   if (trendDown3)
+   {Alert ("trendDown3    ", Symbol(), "   " );
+   PlaySound("alert2.wav");}
+   if (trendDown4)
+   {Alert ("trendDown4    ", Symbol(), "  " );
+   PlaySound("alert2.wav");}
+   if (trendDown5)
+   {Alert ("trendDown5    ", Symbol(), "    ");
+   PlaySound("alert2.wav");}
+   if (trendDown6)
+   {Alert ("trendDown6    ", Symbol(), "    ");
+   PlaySound("alert2.wav");}
+   */
+ /*   
+//long alerts   
+   if (trendUp1)
+   Alert ("trendUp1     ", Symbol(), "    ");
+   
+  if (trendUp2)
+   Alert ("trendUp2     ", Symbol(), "   " );
+   if (trendUp3)
+   Alert ("trendUp3     ", Symbol(), "    ");
+   if (trendUp3)
+   Alert ("trendUp4     ", Symbol(), "    ");
+   if (trendUp5)
+   Alert ("trendUp5     ", Symbol(), "    ");
+   if (trendUp6)
+   Alert ("trendUp6     ", Symbol(), "     " );
+   */
+   
+
  /*    
 //A1 for sell ( month,week,hour,30m,15m )signal stoc red < 20 + (4h diff down >10) + day down
 //A1 for buy ( month,week,hour,30m,15m )signal stoc red > 80 + (4h diff up >10) + day up
@@ -159,20 +281,60 @@ bool short3= ( diff_1m_down >= 10 && diff_5m_down >= 10 && diff_15m_down >= 10  
                diff_1h_down >= 10 && diff_4h_down >= 10 && diff_day_down >=10 );
 bool short4 = ( diff_4h_down > 10 && diff_1h_down > 10 && main_5m < signal_5m && signal_15m < 20 && signal_30m < 20 && signal_5m < 20 && main_1m > 80 ) ;
 bool short5 = ( diff_4h_down > 10 && diff_1h_down > 10 && diff_30m_down > 10 && main_15m < signal_15m && main_5m < signal_5m && main_1m >=60); 
-bool short6 = ( diff_1h_down > 10 && diff_30m_down > 10 && main_15m < signal_15m &&  main_5m < signal_5m && main_1m > 60  );
+bool short6 = ( diff_4h_down > 10 && diff_1h_down > 10 && 
+                  iOpen(Symbol(),PERIOD_H4 ,0)> iClose(Symbol(),PERIOD_H4,0) && 
+                  iOpen(Symbol(),PERIOD_H1 ,0)> iClose(Symbol(),PERIOD_H1,0)     );
 bool short7=  ( diff_4h_down > 10 && diff_1h_down > 10 && main_day <signal_day && main_week < signal_week && main_month < signal_month );
-bool short8 = ( main_1m > signal_1m && main_5m > signal_5m && main_1h < signal_1h && main_4h < signal_4h &&  main_day < signal_day && main_week < signal_week && main_month < signal_month); 
-bool short9 = (diff_4h_down > 10 && diff_1h_down > 10 && diff_30m_down > 10 );  
+bool short8 = ( main_1m < signal_1m && main_5m < signal_5m && main_15m < signal_15m&& main_1h < signal_1h && main_4h < signal_4h &&  main_day < signal_day && main_week < signal_week && main_month < signal_month);
+bool short9 = (diff_4h_down > 10 && diff_1h_down > 10 ); 
+bool short10 = (main_1m <signal_1m && diff_5m_down >10 && diff_15m_down > 10 );
+bool short11 = ( main_1m < 20 && main_5m < 20 && main_15m < 20 && main_1h < 20 && main_4h < 20 &&  main_day <20 && main_week < 20 && main_month < 20);
 
-bool short10= ( main_1m >= 85 && main_5m >= 85 && main_4h < signal_4h &&  main_day < signal_day && main_week < signal_week && main_month < signal_month); 
-bool short11 = ( main_1m > signal_1m && main_5m > signal_5m && main_15m > signal_15m && main_1h < signal_1h && main_4h < signal_4h &&  main_day < signal_day && main_week < signal_week && main_month < signal_month);
-bool short12= ( main_5m ==75 && main_15m <=30 && main_30m <= 20 && main_1h <=20 && main_1h < signal_1h && main_4h <= 70&& main_4h < signal_4h );
-bool short13 = (( diff_15m_down > 10 ) &&  ( diff_5m_down >10 ) &&  ( main_15m >= 50 ) &&( main_1m >= 70 )) ;
-bool short14 = ( diff_5m_down>10 && main_1m > 80 && main_5m > 30 && main_5m < 70 )  ;
-bool short15= ( main_1m >= 80 && signal_1m >=80 && main_15m < signal_15m );
-bool short16= ( main_1m >= 80 && signal_1m >=80 && main_5m < signal_5m && main_15m < signal_15m );
 
 bool short17= (  diff_4h_down > 10 && diff_1h_down > 10 && main_1m > 80 );
+
+//case short18 from AUDJPY GREAT CASE
+bool short18= (  
+// down candle on the frames 
+iOpen(Symbol(),PERIOD_MN1 ,0)> iClose(Symbol(),PERIOD_MN1,0) && 
+iOpen(Symbol(),PERIOD_W1 ,0)> iClose(Symbol(),PERIOD_W1,0) && 
+iOpen(Symbol(),PERIOD_D1 ,0)> iClose(Symbol(),PERIOD_D1,0) && 
+iOpen(Symbol(),PERIOD_H4 ,0)> iClose(Symbol(),PERIOD_H4,0) && 
+iOpen(Symbol(),PERIOD_H1 ,0)> iClose(Symbol(),PERIOD_H1,0) && 
+iOpen(Symbol(),PERIOD_M30 ,0)> iClose(Symbol(),PERIOD_M30,0) &&
+iOpen(Symbol(),PERIOD_M15 ,0)> iClose(Symbol(),PERIOD_M15,0) &&
+iOpen(Symbol(),PERIOD_M5 ,0)> iClose(Symbol(),PERIOD_M5,0) &&
+// stoc is down in all frames 
+main_month < signal_month && main_week < signal_week && main_day < signal_day && main_4h < signal_4h && 
+main_1h < signal_1h && main_30m < signal_30m && main_15m < signal_15m && main_5m < signal_5m && main_1m < signal_1m &&
+// stoc main is below 20 in all frames except frame minute main above than 60 
+main_day <= 20 && main_4h <= 20 && 
+main_1h <= 20 && main_30m <= 20 && main_15m <= 30 && main_5m <= 20 && main_1m >60 &&
+// diff of stoc
+diff_week_down >10 );
+
+
+//case short18 from AUDJPY GREAT CASE
+bool short19= (  
+// down candle on the frames 
+iOpen(Symbol(),PERIOD_MN1 ,0)> iClose(Symbol(),PERIOD_MN1,0) && 
+iOpen(Symbol(),PERIOD_W1 ,0)> iClose(Symbol(),PERIOD_W1,0) && 
+iOpen(Symbol(),PERIOD_D1 ,0)> iClose(Symbol(),PERIOD_D1,0) && 
+iOpen(Symbol(),PERIOD_H4 ,0)> iClose(Symbol(),PERIOD_H4,0) && 
+iOpen(Symbol(),PERIOD_H1 ,0)> iClose(Symbol(),PERIOD_H1,0) && 
+iOpen(Symbol(),PERIOD_M30 ,0)> iClose(Symbol(),PERIOD_M30,0) &&
+iOpen(Symbol(),PERIOD_M15 ,0)> iClose(Symbol(),PERIOD_M15,0) &&
+iOpen(Symbol(),PERIOD_M5 ,0)> iClose(Symbol(),PERIOD_M5,0) &&
+// stoc is down in all frames 
+main_month < signal_month && main_week < signal_week /*&& main_day < signal_day*/ && main_4h < signal_4h && 
+main_1h < signal_1h /*&& main_30m < signal_30m*/ && main_15m < signal_15m && main_5m < signal_5m && main_1m < signal_1m &&
+// stoc main is below 20 in all frames except frame minute main above than 60 
+main_day <= 20 && main_4h <= 20 && 
+main_1h <= 20 && main_30m <= 20 && main_15m <= 30 /*&& main_5m <= 20 && main_1m >60 */ &&
+// diff of stoc
+diff_month_down> 10 && diff_week_down >10 && diff_1h_down > 10 && diff_15m_down > 10 );
+
+      
 
  // long buy conditions
 bool long1 = (main_month > signal_month  && main_week > signal_week && main_day > signal_day &&
@@ -182,20 +344,59 @@ bool long3 = ( diff_1m_up >= 10  && diff_5m_up >=10 && diff_15m_up >=10 && diff_
             diff_1h_up >= 10  && diff_4h_up >= 10  && diff_day_up >= 10 );
 bool long4 = ( diff_4h_up > 10 && diff_1h_up > 10 && main_5m > signal_5m && signal_15m > 70 && signal_30m > 70 && main_1m < 20  );
 bool long5 = ( diff_4h_up > 10 && diff_1h_up > 10 && diff_30m_up > 10 && main_15m > signal_15m && main_30m > signal_30m && main_1m <=40 ); 
-bool long6 = ( diff_1h_up > 10 && diff_30m_up > 10 && main_15m > signal_15m && main_5m > signal_5m &&  main_1m < 40 );
+bool long6 = ( diff_4h_up > 10 && diff_1h_up > 10 &&
+                iOpen(Symbol(),PERIOD_H4 ,0)< iClose(Symbol(),PERIOD_H4,0) && 
+                iOpen(Symbol(),PERIOD_H1 ,0)< iClose(Symbol(),PERIOD_H1,0)     );
 bool long7 = ( diff_4h_up > 10 && diff_1h_up > 10 && main_day > signal_day && main_week > signal_week && main_month > signal_month );
-bool long8 = ( main_1m < signal_1m && main_5m < signal_5m && main_15m < signal_15m&& main_1h > signal_1h && main_4h > signal_4h &&  main_day > signal_day && main_week > signal_week && main_month > signal_month);
-bool long9 = ( diff_4h_up > 10 && diff_1h_up > 10 && diff_30m_up > 10 );
 
-bool long10 = ( main_1m <= 15 && main_5m <= 15 && main_4h > signal_4h &&  main_day > signal_day && main_week > signal_week && main_month > signal_month);
-bool long11 = ( main_1m < signal_1m && main_5m < signal_5m && main_1h > signal_1h && main_4h > signal_4h &&  main_day > signal_day && main_week > signal_week && main_month > signal_month); 
-bool long12 = ( main_5m ==25 && main_15m >=70 && main_30m >= 80 && main_1h >=80 && main_1h > signal_1h && main_4h >= 30 && main_4h > signal_4h );
-bool long13 = ((diff_15m_up >10 ) && (diff_5m_up>10 )&& ( main_15m <= 50 ) && ( main_1m <= 30 )) ;
-bool long14 = ( diff_5m_up >10 && main_1m < 20 && main_5m > 30 && main_5m < 70 )  ;
-bool long15 = ( main_1m <= 20 && signal_1m <=20 && main_15m > signal_15m );
-bool long16 = ( main_1m <= 20 && signal_1m <=20 && main_5m > signal_5m && main_15m > signal_15m );
+bool long8 = ( main_1m > signal_1m && main_5m > signal_5m && main_1h > signal_1h && main_4h > signal_4h &&  main_day > signal_day && main_week > signal_week && main_month > signal_month); 
+bool long9 = ( diff_4h_up > 10 && diff_1h_up > 10);
+bool long10 = (main_1m > signal_1m && diff_5m_up >10 && diff_15m_up > 10 );
+bool long11 = ( main_1m >80 && main_5m >80 && main_15m >80 && main_1h >80 && main_4h >80 &&  main_day >80 && main_week >80 && main_month>80);
+
 
 bool long17 = ( diff_4h_up > 10 &&  diff_1h_up > 10 && main_1m < 20 );
+
+//case long18 from AUDJPY GREAT CASE
+bool long18= (  
+// up candle on the frames 
+iOpen(Symbol(),PERIOD_MN1 ,0)< iClose(Symbol(),PERIOD_MN1,0) && 
+iOpen(Symbol(),PERIOD_W1 ,0)< iClose(Symbol(),PERIOD_W1,0) && 
+iOpen(Symbol(),PERIOD_D1 ,0)< iClose(Symbol(),PERIOD_D1,0) && 
+iOpen(Symbol(),PERIOD_H4 ,0)< iClose(Symbol(),PERIOD_H4,0) && 
+iOpen(Symbol(),PERIOD_H1 ,0)< iClose(Symbol(),PERIOD_H1,0) && 
+iOpen(Symbol(),PERIOD_M30 ,0)< iClose(Symbol(),PERIOD_M30,0) &&
+iOpen(Symbol(),PERIOD_M15 ,0)< iClose(Symbol(),PERIOD_M15,0) &&
+iOpen(Symbol(),PERIOD_M5 ,0)< iClose(Symbol(),PERIOD_M5,0) &&
+// stoc is up in all frames  
+main_month > signal_month && main_week > signal_week && main_day > signal_day && main_4h > signal_4h && 
+main_1h > signal_1h && main_30m > signal_30m && main_15m > signal_15m && main_5m > signal_5m && main_1m > signal_1m &&
+// stoc  main is above 80 in all frames except frame minute main less than 40 
+main_day >= 80 && main_4h >= 80 && 
+main_1h >= 80 && main_30m >= 80 && main_15m >= 80 && main_5m >= 80 && main_1m <40 &&
+// diff of stoc
+diff_week_up >10 );
+
+
+//case long19 from AUDJPY GREAT CASE
+bool long19= (  
+// up candle on the frames 
+iOpen(Symbol(),PERIOD_MN1 ,0)< iClose(Symbol(),PERIOD_MN1,0) && 
+iOpen(Symbol(),PERIOD_W1 ,0)< iClose(Symbol(),PERIOD_W1,0) && 
+iOpen(Symbol(),PERIOD_D1 ,0)< iClose(Symbol(),PERIOD_D1,0) && 
+iOpen(Symbol(),PERIOD_H4 ,0)< iClose(Symbol(),PERIOD_H4,0) && 
+iOpen(Symbol(),PERIOD_H1 ,0)< iClose(Symbol(),PERIOD_H1,0) && 
+iOpen(Symbol(),PERIOD_M30 ,0)< iClose(Symbol(),PERIOD_M30,0) &&
+iOpen(Symbol(),PERIOD_M15 ,0)< iClose(Symbol(),PERIOD_M15,0) &&
+iOpen(Symbol(),PERIOD_M5 ,0)< iClose(Symbol(),PERIOD_M5,0) &&
+// stoc is up in all frames  
+main_month > signal_month && main_week > signal_week /* && main_day > signal_day */ && main_4h > signal_4h && 
+main_1h > signal_1h /*&& main_30m > signal_30m */ && main_15m > signal_15m && main_5m > signal_5m && main_1m > signal_1m &&
+// stoc  main is above 80 in all frames except frame minute main less than 40 
+main_day >= 80 && main_4h >= 80 && 
+main_1h >= 80 && main_30m >= 80 && main_15m >= 80 /* && main_5m >= 80 && main_1m <40*/ &&
+// diff of stoc
+diff_month_up && diff_week_up >10 && diff_1h_up >10 && diff_15m_up > 10);
 
   /*  
 //+------------------------------------------------------------------+
@@ -223,119 +424,113 @@ bool long17 = ( diff_4h_up > 10 &&  diff_1h_up > 10 && main_1m < 20 );
    if (short1)
    {Alert ( Symbol(),"  short1 " );
    PlaySound("alert2.wav");}
-   if (short2)
+   if (short2 )
    {Alert (Symbol(),"  short2 " );
    PlaySound("alert2.wav");}
-   if (short3)
+   if (short3 )
    {Alert (Symbol(), " short3 " );
    PlaySound("alert2.wav");}
-   if (short4)
+   if (short4 )
    {Alert (Symbol(), "  short4 " );
    PlaySound("alert2.wav");}
-   if (short5)
+   if (short5 )
    {Alert (Symbol(), "  short5 " );
    PlaySound("alert2.wav");}
-   if (short6)
+  if (short6 )
    {Alert (Symbol(), "  short6 " );
    PlaySound("alert2.wav");}
-   if (short7)
+
+   if (short7 )
    {Alert (Symbol(), "  short7 " );
    PlaySound("alert2.wav");}
-   if (short8)
+   if (short8 )
    {Alert (Symbol(), "  short8 " );
    PlaySound("alert2.wav");}
-   if (short9)
+  if (short9 )
    {Alert (Symbol(), "  short9 " );
    PlaySound("alert2.wav");}
-   
-   /*  
-   if (short10)
+   if (short10 )
    {Alert (Symbol(), "  short10 " );
    PlaySound("alert2.wav");}
-     if (short11)
+ 
+   if (short11 )
    {Alert (Symbol(), "  short11 " );
    PlaySound("alert2.wav");}
-     if (short12)
-   {Alert (Symbol(), "  short12 " );
-   PlaySound("alert2.wav");}
-     if (short13)
-   {Alert (Symbol(), "  short13 " );
-   PlaySound("alert2.wav");}
-     if (short14)
-   {Alert (Symbol(), "  short14 " );
-   PlaySound("alert2.wav");}
-     if (short15)
-   {Alert (Symbol(), "  short15 " );
-   PlaySound("alert2.wav");}
-     if (short16)
-   {Alert (Symbol(), "  short16 " );
-   PlaySound("alert2.wav");}
-     */
-    if (short17)
+
+  if (short17)
    {Alert (Symbol(), "  short17 " );
    PlaySound("alert2.wav");}
  
-   
-//long alerts   
-   if (long1)
-   {Alert (Symbol(), " long1  " );
+ if (short18)
+   {Alert (Symbol(), "  short  188888888 " );
    PlaySound("alert2.wav");}
-   if (long2)
-   {Alert (Symbol()," long2 " );
-     PlaySound("alert2.wav");}
-   if (long3)
-   {Alert ( Symbol()," long3 " );
-      PlaySound("alert2.wav");}
-   if (long4)
-   {Alert ( Symbol()," long4 " );
-      PlaySound("alert2.wav");}
-    if (long5)
-   {Alert ( Symbol()," long5 " );
-      PlaySound("alert2.wav");}
-    if (long6)
-   {Alert ( Symbol()," long6 " );
-      PlaySound("alert2.wav");}
-   if (long7)
-   {Alert ( Symbol()," long7 " );
-      PlaySound("alert2.wav");}
-     if (long8)
-   {Alert ( Symbol()," long8 " );
-      PlaySound("alert2.wav");}
-      if (long9)
-   {Alert ( Symbol()," long9 " );
-      PlaySound("alert2.wav");}
-    
-    
-    /*
-      if (long10)
-   {Alert ( Symbol()," long10 " );
-      PlaySound("alert2.wav");}
-      if (long11)
-   {Alert ( Symbol()," long11 " );
-      PlaySound("alert2.wav");}
-      if (long12)
-   {Alert ( Symbol()," long12 " );
-      PlaySound("alert2.wav");}
-      if (long13)
-   {Alert ( Symbol()," long13 " );
-      PlaySound("alert2.wav");}
-      if (long14)
-   {Alert ( Symbol()," long14 " );
-      PlaySound("alert2.wav");}
-      if (long15)
-   {Alert ( Symbol()," long15 " );
-      PlaySound("alert2.wav");}
-      if (long16)
-   {Alert ( Symbol()," long16 " );
-      PlaySound("alert2.wav");}
-      */  
-      
-     if (long17)
-     
-     {Alert ( Symbol()," long17 " );
-      PlaySound("alert2.wav");}
-     
+   
+ if (short19)
+   {Alert (Symbol(), "  short  1999 " );
+   PlaySound("alert2.wav");}
+   
+   
+  if (short9 && ( short18 || short19) )
+   {Alert (Symbol(), "  short9 && ( short18 || short19) " );
+   PlaySound("alert2.wav");}
   
+  
+//long alerts   
+   if (long1  )
+   {Alert (Symbol(), " buy long1  " );
+   PlaySound("alert2.wav");}
+   if (long2 )
+   {Alert (Symbol()," buy long2 " );
+     PlaySound("alert2.wav");}
+   if (long3 )
+   {Alert ( Symbol()," buy long3 " );
+      PlaySound("alert2.wav");}
+   if (long4 )
+   {Alert ( Symbol()," buy long4 " );
+      PlaySound("alert2.wav");}
+    if (long5 )
+   {Alert ( Symbol()," buy long5 " );
+      PlaySound("alert2.wav");}
+    if (long6  )
+   {Alert ( Symbol()," buy long6 " );
+   PlaySound("alert2.wav");}
+   if (long7 )
+   {Alert ( Symbol()," buy long7 " );
+      PlaySound("alert2.wav");}
+     if (long8 )
+   {Alert ( Symbol()," buy long8 " );
+      PlaySound("alert2.wav");}
+     
+    if (long9 )
+   {Alert ( Symbol()," buy long9 " );
+      PlaySound("alert2.wav");}
+    if (long10 )
+   {Alert ( Symbol()," buy long10 " );
+      PlaySound("alert2.wav");}
+       if (long11 )
+   {Alert ( Symbol()," buy long11 " );
+      PlaySound("alert2.wav");}
+  if (long17 )
+          {Alert ( Symbol()," long17 " );
+      PlaySound("alert2.wav");}
+     
+   
+  if (long17)
+          {Alert ( Symbol()," long17 " );
+      PlaySound("alert2.wav");}
+  if (long18)
+          {Alert ( Symbol()," long   188888888 " );
+      PlaySound("alert2.wav");}
+    if (long19)
+          {Alert ( Symbol()," long   1999 " );
+      PlaySound("alert2.wav");}
+    
+     
+    
+    if (long9 && ( long18 || long19 ))
+   {Alert ( Symbol()," buy long9 && ( long18 || long19 ) " );
+      PlaySound("alert2.wav");}
+    
   /*
 //+------------------------------------------------------------------+
 // Actual orders for sell and buy for the Ok conditions 
@@ -358,6 +553,9 @@ if ( short1 || short2 || short3 || short4 || short5 || short6 || short7 || short
    */
 //----
    
+        if (Symbol() == "USDJPY" && main_1m <signal_1m && diff_5m_down >10 && diff_15m_down > 10 )
+          {Alert ( Symbol()," sellllllll im is above 80 " );
+      PlaySound("alert2.wav");}
 //----
    return(0);
   }
